@@ -1,0 +1,70 @@
+<script type="text/javascript" src="https://downloads.cognigy.com/CognigyWebchat/v1.1.9/cognigyWebChat.js"></script>
+<style>
+  .cognigy-chat-user-avatar {
+    background-image: url("https://s3.eu-central-1.amazonaws.com/henkel-cognigy/webchat/avatar_20x20.png")
+  }
+  .cognigy-outer-container__open, #cognigy-toggle-state {
+    z-index: 1001;
+  }
+  #cognigyHeaderLogo {
+    width: 60px;
+    height: 14px;
+  }
+</style>
+
+<script>
+  var showBotButtonOnlyPages = ['startseite.html', 'startseite.cky.html'];
+  var botOpenPages = ['fleckenhilfe.html'];
+  var pagesWithBot = showBotButtonOnlyPages.concat(botOpenPages);
+  var welcomeMessage = "Los geht's!";
+  var botName = "Home Connect Fleckenhilfe";
+
+  var webchatEndpoint = "https://endpoint-enterprise.cognigy.ai/6e5b4366c88dbcf90c954223da9a756570b393c9024b592af656e33f589e4d02";
+
+  var path = window.location.pathname;
+
+  function showBot(pages) {
+    return showTheBot = pages.some(endsWith); 
+  }
+
+  function endsWith(page) {
+    return path.length >= page.length && path.lastIndexOf(page) + page.length == path.length;
+  }
+
+  function handleChatOpen () {
+    var toggleChatState = document.getElementById("cognigy-toggle-state");
+    var toggleMobileChatState = document.getElementById("cognigy-toggle-state-mobile");
+    var chatContainer = document.getElementById("cognigy-outer-container");
+    var chatHeader = document.getElementById("cognigy-header");
+
+    if (toggleChatState && chatContainer && toggleMobileChatState && toggleChatState.className === "cognigy-chat-state-closed") {
+      chatContainer.className = "cognigy-outer-container__open";
+      toggleChatState.className = "cognigy-chat-state-open";
+      toggleMobileChatState.className = "cognigy-mobile-open";
+    } 
+    else if (chatContainer && toggleChatState && toggleMobileChatState) {
+      chatContainer.className = "cognigy-outer-container__closed";
+      toggleChatState.className = "cognigy-chat-state-closed";
+      toggleMobileChatState.className = "displayNone";
+    }
+  }
+
+  function adjust(client) {
+    client.sendMessage(welcomeMessage, null, true);
+    var title = document.getElementsByClassName("cognigy-header-title")[0];
+    title.innerHTML = botName;
+
+    if( showBot(botOpenPages) ) {
+      handleChatOpen();
+    }
+  }
+
+  var configObject = {
+    configUrl: webchatEndpoint,
+    backgroundImageUrl: null,
+  };
+
+  if( showBot(pagesWithBot) ) {
+    Cognigy.init(configObject).then(function (client) {adjust(client);});
+  }
+</script>
